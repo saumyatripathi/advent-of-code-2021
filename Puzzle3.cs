@@ -21,11 +21,29 @@ class Puzzle3
         var answer = Convert.ToInt32(gamma, 2) * Convert.ToInt32(epsilon, 2);
         System.Console.WriteLine(answer);
 
-        var o2ColGroups = parsed
-            .SelectMany(t => t.Select<double, (double value, int colIdx)>((x, idx) => (x, idx)))
-            .GroupBy(t=>t.colIdx, (g,c)=> (g,c.Select(x=>(x.value))));
+        var o2Value = string.Join("",
+            Enumerable
+            .Range(0, parsed.First().Count())
+            .Aggregate(parsed, (prev, curr) =>
+            {
+                if (prev.Count() == 1) return prev;
+                var valid = prev.Select(x => x.ElementAt(curr)).GroupBy(x => x, (x, c) => (x, c.Count())).OrderByDescending(x => x.Item2).ThenByDescending(x => x.x).First().x;
+                return prev.Where(t => t.ElementAt(curr) == valid).ToList();
+            })
+            .First());
 
-        // o2ColGroups.Aggregate(parsed,(prev,curr)=> prev.Where(t=>t.Where(x=>)))
-        //curr.Item2.GroupBy(x=>x, (x,c)=> (x,c.Count())).OrderByDescending(x=>x.Item2).First().x
+        var co2Value = string.Join("",
+            Enumerable
+            .Range(0, parsed.First().Count())
+            .Aggregate(parsed, (prev, curr) =>
+            {
+                if (prev.Count() == 1) return prev;
+                var valid = prev.Select(x => x.ElementAt(curr)).GroupBy(x => x, (x, c) => (x, c.Count())).OrderBy(x => x.Item2).ThenBy(x => x.x).First().x;
+                return prev.Where(t => t.ElementAt(curr) == valid).ToList();
+            })
+            .First());
+
+        var answer2 = Convert.ToInt32(o2Value, 2) * Convert.ToInt32(co2Value, 2);
+        System.Console.WriteLine(answer2);
     }
 }
